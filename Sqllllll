@@ -1,0 +1,223 @@
+CREATE TABLE Staff
+(
+  s_id INT NOT NULL,
+  s_firstname VARCHAR(100) NOT NULL,
+  s_lastname VARCHAR(100) NOT NULL,
+  s_address VARCHAR(255) NOT NULL,
+  s_tel INT,
+  s_date_of_birth DATE NOT NULL,
+  s_gender VARCHAR(10) NOT NULL,
+  s_nin INT NOT NULL,
+  s_position VARCHAR(50) NOT NULL,
+  s_salary INT NOT NULL,
+  s_salaryscale INT NOT NULL,
+  s_ward_no INT NOT NULL,
+  s_payroll INT NOT NULL,
+  hire DATE NOT NULL,
+  PRIMARY KEY (s_id)
+);
+
+CREATE TABLE Qualifications
+(
+  qua_type VARCHAR(100) NOT NULL,
+  date_qualification DATE NOT NULL,
+  s_id INT NOT NULL,
+  FOREIGN KEY (s_id) REFERENCES Staff(s_id)
+);
+
+CREATE TABLE Work_Experience
+(
+  position_detail VARCHAR(100) NOT NULL,
+  name_organization VARCHAR(255) NOT NULL,
+  start_date DATE NOT NULL,
+  finish_date DATE,
+  s_id INT NOT NULL,
+  FOREIGN KEY (s_id) REFERENCES Staff(s_id)
+);
+
+CREATE TABLE Ward_Requisitions
+(
+  ward_name VARCHAR(100) NOT NULL,
+  ward_sign_date DATE NOT NULL,
+  s_firstname VARCHAR(100) NOT NULL,
+  s_lastname VARCHAR(100) NOT NULL,
+  phar_no INT NOT NULL,
+  sup_id INT,
+  sur_no INT,
+  s_id INT NOT NULL,
+  FOREIGN KEY (s_id) REFERENCES Staff(s_id)
+);
+
+CREATE TABLE Sur_order_sur
+(
+  sur_cost INT NOT NULL,
+  sur_date DATE NOT NULL,
+  order_date DATE NOT NULL,
+  sur_no INT NOT NULL,
+  s_id INT NOT NULL,
+  PRIMARY KEY (sur_no),
+  FOREIGN KEY (s_id) REFERENCES Staff(s_id)
+);
+
+CREATE TABLE Surgical_and_non_surgical_supplies
+(
+  sur_description VARCHAR(255) NOT NULL,
+  sur_name VARCHAR(100) NOT NULL,
+  sur_no INT NOT NULL,
+  PRIMARY KEY (sur_no)
+);
+
+CREATE TABLE Suppliers
+(
+  sup_id INT NOT NULL,
+  sup_name VARCHAR(100) NOT NULL,
+  sup_address VARCHAR(255) NOT NULL,
+  sup_tel INT,
+  fax INT,
+  PRIMARY KEY (sup_id)
+);
+
+CREATE TABLE Outpatient_Clinic
+(
+  outcli_no INT NOT NULL,
+  outcli_name VARCHAR(100) NOT NULL,
+  outcli_tel INT,
+  p_id INT NOT NULL,
+  PRIMARY KEY (outcli_no)
+);
+
+CREATE TABLE Ward
+(
+  ward_no INT NOT NULL,
+  ward_name VARCHAR(100) NOT NULL,
+  ward_location VARCHAR(255) NOT NULL,
+  ward_tel INT,
+  PRIMARY KEY (ward_no)
+);
+
+CREATE TABLE Local_Doctors
+(
+  clinic_no INT NOT NULL,
+  doc_name VARCHAR(100) NOT NULL,
+  clinic_tel INT,
+  clinic_address VARCHAR(255) NOT NULL,
+  PRIMARY KEY (clinic_no)
+);
+
+CREATE TABLE Illness
+(
+  illness_ID INT NOT NULL,
+  Name VARCHAR(100) NOT NULL,
+  Description TEXT,
+  Symptoms TEXT,
+  Patient_ID INT NOT NULL,
+  PRIMARY KEY (illness_ID)
+);
+
+CREATE TABLE Patients
+(
+  p_id INT NOT NULL,
+  p_firstname VARCHAR(100) NOT NULL,
+  p_lastname VARCHAR(100) NOT NULL,
+  p_address VARCHAR(255) NOT NULL,
+  p_tel INT,
+  p_date_of_birth DATE NOT NULL,
+  p_gender VARCHAR(10) NOT NULL,
+  p_marital VARCHAR(20),
+  p_reg_date DATE NOT NULL,
+  clinic_no INT,
+  PRIMARY KEY (p_id),
+  FOREIGN KEY (clinic_no) REFERENCES Local_Doctors(clinic_no)
+);
+
+CREATE TABLE Inpatients
+(
+  expected_stay DATE NOT NULL,
+  placed_date DATE NOT NULL,
+  leaved_date DATE,
+  leaved_actual DATE,
+  p_id INT NOT NULL,
+  s_id INT NOT NULL,
+  ward_no INT NOT NULL,
+  FOREIGN KEY (p_id) REFERENCES Patients(p_id),
+  FOREIGN KEY (s_id) REFERENCES Staff(s_id),
+  FOREIGN KEY (ward_no) REFERENCES Ward(ward_no)
+);
+
+CREATE TABLE Pharmaceutical_Supplies
+(
+  phar_no INT NOT NULL,
+  phar_name VARCHAR(100) NOT NULL,
+  phar_description VARCHAR(255) NOT NULL,
+  sup_id INT,
+  PRIMARY KEY (phar_no),
+  FOREIGN KEY (sup_id) REFERENCES Suppliers(sup_id)
+);
+
+CREATE TABLE Outpatients
+(
+  p_id INT NOT NULL,
+  outcli_no INT NOT NULL,
+  s_id INT NOT NULL,
+  FOREIGN KEY (s_id) REFERENCES Staff(s_id),
+  FOREIGN KEY (outcli_no) REFERENCES Outpatient_Clinic(outcli_no),
+  FOREIGN KEY (p_id) REFERENCES Patients(p_id)
+);
+
+CREATE TABLE Patient_Next_of_Kin
+(
+  pnextkin_name VARCHAR(100) NOT NULL,
+  pnextkin_relationship VARCHAR(50) NOT NULL,
+  pnextkin_address VARCHAR(255) NOT NULL,
+  pnextkin_tel INT,
+  p_id INT NOT NULL,
+  PRIMARY KEY (pnextkin_name),
+  FOREIGN KEY (p_id) REFERENCES Patients(p_id)
+);
+
+CREATE TABLE Patient_Appointments
+(
+  app_no INT NOT NULL,
+  app_date DATE NOT NULL,
+  app_time VARCHAR(10) NOT NULL,
+  app_examination VARCHAR(255) NOT NULL,
+  ward_no INT NOT NULL,
+  p_id INT NOT NULL,
+  FOREIGN KEY (ward_no) REFERENCES Ward(ward_no),
+  FOREIGN KEY (p_id) REFERENCES Patients(p_id)
+);
+
+CREATE TABLE Patient_Medication
+(
+  p_firstname VARCHAR(100) NOT NULL,
+  p_lastname VARCHAR(100) NOT NULL,
+  units_perday INT NOT NULL,
+  method_ad VARCHAR(50) NOT NULL,
+  p_id INT NOT NULL,
+  ward_no INT NOT NULL,
+  phar_no INT NOT NULL,
+  FOREIGN KEY (p_id) REFERENCES Patients(p_id),
+  FOREIGN KEY (ward_no) REFERENCES Ward(ward_no),
+  FOREIGN KEY (phar_no) REFERENCES Pharmaceutical_Supplies(phar_no)
+);
+
+CREATE TABLE Patient_Illness
+(
+  Patient_ID INT NOT NULL,
+  illness_ID INT NOT NULL,
+  Diagnosis_Date DATE NOT NULL,
+  Recovery_Date DATE,
+  PRIMARY KEY (Patient_ID, illness_ID),
+  FOREIGN KEY (Patient_ID) REFERENCES Patients(p_id),
+  FOREIGN KEY (illness_ID) REFERENCES Illness(illness_ID)
+);
+
+CREATE TABLE Most_illness
+(
+  illness_count INT NOT NULL,
+  record_Date DATE NOT NULL,
+  Patient_ID INT NOT NULL,
+  illness_ID INT NOT NULL,
+  FOREIGN KEY (illness_ID) REFERENCES Illness(illness_ID),
+  FOREIGN KEY (Patient_ID) REFERENCES Patient_Illness(Patient_ID)
+);
